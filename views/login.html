@@ -15,7 +15,7 @@
       <button type="submit" id="submit-btn">Login</button>
     </form>
     <span>New User??</span>
-    <button>Sign Up</button>
+    <a href="http://localhost:800/">Sign Up</a>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script>
@@ -30,14 +30,13 @@
        }
        let response=await axios.post("http://localhost:800/user/login",obj);
        console.log(response);
-       try{
+       
         if(response.data.email === obj.email && response.data.password === obj.password){
         alert("User logged in sucessfully");
+       }else if(response.data ==="The user does not exist" || response.data ==="The pasword does not exist"){
+        alert(`${response.data}`)
        }else{
         alert(`${response.data}`)
-       }
-       }catch(err){
-        alert(err.message);
        }
        
     }
