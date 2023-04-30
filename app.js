@@ -5,7 +5,9 @@ const sequelize=require('./utils/database');
 const port=800;
 const server=express();
 
-server.use(bodyParser.json());
+server.use(bodyParser.urlencoded({extended:false}));
+
+server.use(bodyParser.json())
 
 server.use(express.static(path.join(__dirname,'public')));
 

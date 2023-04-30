@@ -33,10 +33,10 @@
        
         if(response.data.email === obj.email && response.data.password === obj.password){
         alert("User logged in sucessfully");
-       }else if(response.data ==="The user does not exist" || response.data ==="The pasword does not exist"){
+       }else if(response.data ==="The email does not exist" || response.data ==="The pasword does not exist"){
         alert(`${response.data}`)
        }else{
-        alert(`${response.data}`)
+        document.write(`${response.data}`)
        }
        
     }

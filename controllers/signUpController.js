@@ -1,18 +1,29 @@
 const users=require('../models/users');
 const path=require('path');
-exports.signUp=async function(req,res,next){
-   console.log(req.body);
-   let response=await users.findOne({where:{email:req.body.email}})
+const bcrypt=require('bcrypt');
+exports.signUp= async function(req,res,next){
+   console.log(req.body.password);
+   const response=await users.findOne({where:{email:req.body.email}});
+   console.log(response);
    if(response === null){
-    users.create({
-        name:req.body.name,
-        email:req.body.email,
-        password:req.body.password
-    }).then(()=>{
-        res.redirect('/login');
-    }).catch(err =>console.log(err));
+    bcrypt.hash(req.body.password,10,function(err,hash){
+        if(err){
+            console.log(err);
+            return;
+        }
+        users.create({
+            name:req.body.name,
+            email:req.body.email,
+            password:hash
+        }).then(()=>{
+            res.redirect('/login')
+        }).catch(err => console.log(err))
+    })
    }else{
-    return res.send('User already exists'); 
+    res.send("The user already exists");
+   }
+  
    }
    
-}
+    
+

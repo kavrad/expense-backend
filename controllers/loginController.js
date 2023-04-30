@@ -11,7 +11,7 @@ exports.postLogin=async function(req,res,next){
   let responseEmail=await users.findOne({where:{email:req.body.email}});
   let responsePassword=await users.findOne({where:{password:password}})
   if(responseEmail === null && responsePassword === null){
-   res.json('The user does not exist')
+   res.redirect('/');
   }else if(responseEmail === null){
     res.json('The email does not exist')
   }else if(responsePassword ===null){
