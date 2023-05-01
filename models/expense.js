@@ -1,6 +1,6 @@
 const {Sequelize, DataTypes} =require('sequelize');
 const sequelize=require('../utils/database');
-const expenses=sequelize.define('expenses',{
+const Expenses=sequelize.define('expenses',{
     Id:{
         type:Sequelize.INTEGER,
         allowNull:false,
@@ -18,4 +18,4 @@ const expenses=sequelize.define('expenses',{
         type:DataTypes.STRING
     }
 })
-module.exports=expenses;
+module.exports=Expenses;

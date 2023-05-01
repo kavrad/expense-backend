@@ -22,6 +22,7 @@
     const email=document.querySelector('#emailLogin');
     const password=document.querySelector('#passwordLogin');
     const form=document.querySelector('#form');
+
     async function submitHandler(e){
        e.preventDefault();
        const obj={
@@ -30,8 +31,16 @@
        }
        let response=await axios.post("http://localhost:800/user/login",obj);
        console.log(response);
+      
+       try{
+        let token=response.data.data.token
+       }catch(err){
+        alert(`The password does not exist`);
+       }
+       
+       localStorage.setItem('token',response.data.data.token);
        let id=response.data.id;
-       if(response.data.email === email.value){
+       if(response.data.data.responseEmail.email === email.value){
         alert("User logged in sucessfully");
         window.location.href="http://localhost:800/expense";
        }/*else if(response.data ==="The email does not exist" || response.data ==="The pasword does not exist"){
@@ -39,11 +48,12 @@
        }/*else{
         document.write(`${response.data}`)
        }*/
-       else{
-        alert(`${response.data}`);
+       else if(response.data.data.responseEmail.email !== email.value){
+        alert(`The email does not exist`);
         
        }
     }
+
     form.addEventListener('submit',submitHandler);
 </script>
 </html>

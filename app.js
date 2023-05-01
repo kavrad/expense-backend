@@ -2,6 +2,9 @@ const express=require('express');
 const path=require('path');
 const bodyParser=require('body-parser');
 const sequelize=require('./utils/database');
+const users=require('./models/users');
+const expenses=require('./models/expense');
+const authentication=require('./utils/auth');
 const port=800;
 const server=express();
 
@@ -23,11 +26,14 @@ server.post('/user/login',require('./controllers/loginController').postLogin);
 
 server.get('/expense',require('./controllers/addExpensesController').addExpense);
 
-server.post('/add-expense',require('./controllers/addExpensesController').postAddExpense);
+server.post('/add-expense',authentication.authenticate,require('./controllers/addExpensesController').postAddExpense);
 
-server.get('/show-expense',require('./controllers/addExpensesController').showExpense);
+server.get('/show-expense',authentication.authenticate,require('./controllers/addExpensesController').showExpense);
 
-server.delete('/delete-expense/:id',require('./controllers/deleteExpenseController').deleteExpense);
+server.delete('/delete-expense/:id',authentication.authenticate,require('./controllers/deleteExpenseController').deleteExpense);
+
+users.hasMany(expenses);
+expenses.belongsTo(users);
 
 sequelize.sync().then((result)=>{
     console.log(result);

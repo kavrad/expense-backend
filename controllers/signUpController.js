@@ -1,6 +1,7 @@
 const users=require('../models/users');
 const path=require('path');
 const bcrypt=require('bcrypt');
+
 exports.signUp= async function(req,res,next){
    console.log(req.body.password);
    const response=await users.findOne({where:{email:req.body.email}});
@@ -25,5 +26,5 @@ exports.signUp= async function(req,res,next){
   
    }
    
-    
+  
 

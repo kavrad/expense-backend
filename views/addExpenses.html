@@ -32,19 +32,28 @@
     document.body.appendChild(ul);
 
     async function getExpenses(){
-      let response=await axios("http://localhost:800/show-expense");
+        let token=localStorage.getItem('token');
+        console.log(token);
+      let response=await axios("http://localhost:800/show-expense",
+      {
+         headers: {
+    'Authorization': token,
+  }});
+  console.log(response.data.headers);
       let data=response.data;
       console.log(data);
       return data;
     }
 
     async function postExpenses(){
+        const token=localStorage.getItem('token');
         const obj={
             expenseAmount:expenseAmount.value,
             desc:desc.value,
             category:category.value
         }
-        let response=await axios.post("http://localhost:800/add-expense",obj);
+        let response=await axios.post("http://localhost:800/add-expense",obj,{headers:{"Authorization":token}});
+        console.log(response);
         let data=response.data[response.data.length-1];
         return data;
     }
@@ -61,13 +70,15 @@
         ul.appendChild(li);
 
         async function deleteHandler(){
-            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`);
+            const token=localStorage.getItem('token')
+            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
             console.log(response);
             let id=document.getElementById(`${response.data.Id}`)
             console.log(id);
             let parent=id.parentElement;
             let superParent=parent.parentElement;
             superParent.removeChild(parent);
+            alert(response.message);
         }
         deleteBtn.addEventListener('click',deleteHandler)
     }
@@ -95,13 +106,15 @@
         li.appendChild(deleteBtn);
 
         async function deleteHandler(){
-            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`);
+            let token=localStorage.getItem('token');
+            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
             console.log(response);
             let id=document.getElementById(`${response.data.Id}`)
             console.log(id);
             let parent=id.parentElement;
             let superParent=parent.parentElement;
             superParent.removeChild(parent);
+            alert(response.message)
         }
         deleteBtn.addEventListener('click',deleteHandler)
          });
