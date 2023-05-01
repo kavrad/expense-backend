@@ -30,15 +30,19 @@
        }
        let response=await axios.post("http://localhost:800/user/login",obj);
        console.log(response);
-       
-        if(response.data.email === obj.email && response.data.password === obj.password){
+       let id=response.data.id;
+       if(response.data.email === email.value){
         alert("User logged in sucessfully");
-       }else if(response.data ==="The email does not exist" || response.data ==="The pasword does not exist"){
+        window.location.href="http://localhost:800/expense";
+       }/*else if(response.data ==="The email does not exist" || response.data ==="The pasword does not exist"){
         alert(`${response.data}`)
-       }else{
+       }/*else{
         document.write(`${response.data}`)
+       }*/
+       else{
+        alert(`${response.data}`);
+        
        }
-       
     }
     form.addEventListener('submit',submitHandler);
 </script>

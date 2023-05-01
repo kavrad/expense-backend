@@ -21,6 +21,14 @@ server.get('/login',require('./controllers/loginController').login);
 
 server.post('/user/login',require('./controllers/loginController').postLogin);
 
+server.get('/expense',require('./controllers/addExpensesController').addExpense);
+
+server.post('/add-expense',require('./controllers/addExpensesController').postAddExpense);
+
+server.get('/show-expense',require('./controllers/addExpensesController').showExpense);
+
+server.delete('/delete-expense/:id',require('./controllers/deleteExpenseController').deleteExpense);
+
 sequelize.sync().then((result)=>{
     console.log(result);
     server.listen(port,function(err){

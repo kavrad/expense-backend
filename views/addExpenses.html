@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense App</title>
+</head>
+<body>
+    <form action="/add-expense" method="POST" id="form">
+        <label for="expense-amount">Choose Expense Amount:</label>
+        <input type="number" name="expenseAmount" id="expense-amount">
+        <label for="desc">Choose Description:</label>
+        <input type="text" name="desc" id="desc">
+        <select name="category" id="category"> Chhose A Category:
+            <option value="food">Food</option>
+            <option value="petrol">Petrol</option>
+            <option value="salary">Salary</option>
+            <option value="education">Education</option>
+        </select>
+        <button type="submit">Add Expense</button>
+    </form>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script>
+    const form=document.querySelector('#form');
+    const expenseAmount=document.querySelector('#expense-amount');
+    const desc=document.querySelector('#desc');
+    const category=document.querySelector('#category');
+
+    let ul=document.createElement('ul');
+    document.body.appendChild(ul);
+
+    async function getExpenses(){
+      let response=await axios("http://localhost:800/show-expense");
+      let data=response.data;
+      console.log(data);
+      return data;
+    }
+
+    async function postExpenses(){
+        const obj={
+            expenseAmount:expenseAmount.value,
+            desc:desc.value,
+            category:category.value
+        }
+        let response=await axios.post("http://localhost:800/add-expense",obj);
+        let data=response.data[response.data.length-1];
+        return data;
+    }
+
+    async function postAddProduct(e){
+        e.preventDefault();
+        let data=await postExpenses();
+        let li=document.createElement('li');
+        li.innerText=`${data.expenseAmount}-${data.desc}-${data.category}`;
+        let deleteBtn=document.createElement('button');
+        deleteBtn.setAttribute('id',`${data.Id}`);
+        deleteBtn.textContent="Delete Expenses"
+        li.appendChild(deleteBtn);
+        ul.appendChild(li);
+
+        async function deleteHandler(){
+            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`);
+            console.log(response);
+            let id=document.getElementById(`${response.data.Id}`)
+            console.log(id);
+            let parent=id.parentElement;
+            let superParent=parent.parentElement;
+            superParent.removeChild(parent);
+        }
+        deleteBtn.addEventListener('click',deleteHandler)
+    }
+
+    function createList(){
+        let li=document.createElement('li');
+        let deleteBtn=createDeleBtn();
+        ul.appendChild(li);
+        return li;
+    }
+
+    function createDeleBtn(){
+        let deleteBtn=document.createElement('button');
+        deleteBtn.textContent="Delete Expense";
+        return deleteBtn;
+    }
+    
+    async function getAddProduct(){
+      let data=await getExpenses();
+      data.forEach(element => {
+        let li=createList();
+        li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+        let deleteBtn=createDeleBtn();
+        deleteBtn.id=element.Id;
+        li.appendChild(deleteBtn);
+
+        async function deleteHandler(){
+            let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`);
+            console.log(response);
+            let id=document.getElementById(`${response.data.Id}`)
+            console.log(id);
+            let parent=id.parentElement;
+            let superParent=parent.parentElement;
+            superParent.removeChild(parent);
+        }
+        deleteBtn.addEventListener('click',deleteHandler)
+         });
+         
+    console.log(data);
+    }
+
+    window.addEventListener('DOMContentLoaded',getAddProduct);
+    form.addEventListener('submit',postAddProduct);
+</script>
+</html>
