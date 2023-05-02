@@ -20,14 +20,17 @@
         </select>
         <button type="submit">Add Expense</button>
     </form>
+    <button type="submit" id="rzp-btn">Buy Premium Membership</button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+
 <script>
     const form=document.querySelector('#form');
     const expenseAmount=document.querySelector('#expense-amount');
     const desc=document.querySelector('#desc');
     const category=document.querySelector('#category');
-
+    const rzpBtn=document.querySelector('#rzp-btn');
     let ul=document.createElement('ul');
     document.body.appendChild(ul);
 
@@ -73,14 +76,15 @@
             const token=localStorage.getItem('token')
             let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
             console.log(response);
-            let id=document.getElementById(`${response.data.Id}`)
+            let id=document.getElementById(`${response.data.expense.Id}`)
             console.log(id);
             let parent=id.parentElement;
             let superParent=parent.parentElement;
             superParent.removeChild(parent);
-            alert(response.message);
+            alert(`${response.data.message}`);
         }
         deleteBtn.addEventListener('click',deleteHandler)
+        
     }
 
     function createList(){
@@ -109,20 +113,47 @@
             let token=localStorage.getItem('token');
             let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
             console.log(response);
-            let id=document.getElementById(`${response.data.Id}`)
+            let id=document.getElementById(`${response.data.expense.Id}`)
             console.log(id);
             let parent=id.parentElement;
             let superParent=parent.parentElement;
             superParent.removeChild(parent);
-            alert(response.message)
+            
         }
         deleteBtn.addEventListener('click',deleteHandler)
+        
          });
          
     console.log(data);
     }
-
+    async function rzpHandler(e){
+        var token=localStorage.getItem('token');
+        const response=await axios("http://localhost:800/purchase/premiumMembership",{headers:{"Authorization":token}})
+        console.log(response.data);
+        let options={
+            "key":response.data.key_id,
+             "orderId":response.data.data.id,
+             "amount": "50000",
+             "handler":async function(response){
+               let ans=await axios.post("http://localhost:800/updatemembership",{
+                order_id:options.orderId,
+                payment_id:response.razorpay_payment_id
+               },{headers:{"Authorization":token}})
+               
+               alert("You are a premium user now")
+               let parent=rzpBtn.parentElement;
+               parent.removeChild(rzpBtn);
+             }
+        }
+      var rzp1=new Razorpay(options);
+     rzp1.open();
+     e.preventDefault();
+     rzp1.on('payment failed',function(response){
+        console.log(response);
+     })   
+    }
     window.addEventListener('DOMContentLoaded',getAddProduct);
     form.addEventListener('submit',postAddProduct);
+    rzpBtn.addEventListener('click',rzpHandler)
 </script>
 </html>

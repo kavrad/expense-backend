@@ -4,6 +4,7 @@ const bodyParser=require('body-parser');
 const sequelize=require('./utils/database');
 const users=require('./models/users');
 const expenses=require('./models/expense');
+const orders=require('./models/order')
 const authentication=require('./utils/auth');
 const port=800;
 const server=express();
@@ -32,8 +33,15 @@ server.get('/show-expense',authentication.authenticate,require('./controllers/ad
 
 server.delete('/delete-expense/:id',authentication.authenticate,require('./controllers/deleteExpenseController').deleteExpense);
 
+server.get("/purchase/premiumMembership",authentication.authenticate,require('./controllers/purchasePremiumController').purchasePremium);
+
+server.post('/updatemembership',authentication.authenticate,require('./controllers/updateMember').updateMembership);
+
 users.hasMany(expenses);
 expenses.belongsTo(users);
+
+users.hasMany(orders);
+orders.belongsTo(users);
 
 sequelize.sync().then((result)=>{
     console.log(result);
