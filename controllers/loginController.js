@@ -13,7 +13,7 @@ exports.postLogin=async function(req,res,next){
   let responseEmail=await users.findOne({where:{email:req.body.email}});
   //res.json(responseEmail);
 
-  console.log(responseEmail.id);
+  //console.log(responseEmail.id);
 
     exports.generateToken=function(id,isPremium){
       return jwt.sign(
