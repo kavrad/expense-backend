@@ -11,16 +11,25 @@ exports.postLogin=async function(req,res,next){
     const email=req.body.email;
     const password=req.body.password;
   let responseEmail=await users.findOne({where:{email:req.body.email}});
-  //console.log(responseEmail.id);
-  
-    token = jwt.sign(
-      { userId: responseEmail.id},
-      "secretkeyappearshere",
-      { expiresIn: "1h" }
-    );
-  
+  //res.json(responseEmail);
 
-  becrypt.compare(password,responseEmail.password,function(err,same){
+  console.log(responseEmail.id);
+
+    exports.generateToken=function(id,isPremium){
+      return jwt.sign(
+        { userId: id,isPremium:isPremium},
+        "secretkeyappearshere",
+        { expiresIn: "1h" }
+      );
+    }
+
+    token = jwt.sign(
+        { userId: responseEmail.id,isPremium:responseEmail.isPremium},
+        "secretkeyappearshere",
+        { expiresIn: "1h" }
+      );
+
+    becrypt.compare(password,responseEmail.password,function(err,same){
      if(err){
       res.json(err);
       return;
@@ -31,7 +40,7 @@ exports.postLogin=async function(req,res,next){
     .status(201)
     .json({
       success: true,
-      data: { responseEmail: responseEmail, token: token },
+      data: { responseEmail: responseEmail, token: token},
     });
 
     
@@ -43,11 +52,8 @@ exports.postLogin=async function(req,res,next){
    
   //})
   
-  //let responsePassword=await users.findOne({where:{password:password}})*/
-  console.log(responseEmail.password,responseEmail.email);
+  //let responsePassword=await users.findOne({where:{password:password}})
+console.log(responseEmail.password,responseEmail.email);
 }
 
-/*
- else{
-   
- }*/
+    

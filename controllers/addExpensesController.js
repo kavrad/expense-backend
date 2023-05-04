@@ -22,7 +22,11 @@ exports.postAddExpense=async function(req,res,next){
 
 
 exports.showExpense=function(req,res,next){
+   try{
    expenses.findAll({where:{userId:req.user.id}}).then((expense)=>{
-     res.json(expense);
+     return res.json(expense);
    })
+}catch(err){
+    res.json(JSON.stringify(err))
+}
 }

@@ -37,6 +37,12 @@ server.get("/purchase/premiumMembership",authentication.authenticate,require('./
 
 server.post('/updatemembership',authentication.authenticate,require('./controllers/updateMember').updateMembership);
 
+server.post('/updatemembershipFailed',authentication.authenticate,require('./controllers/updateMember').updateMembershipFailed)
+
+server.get('/get-premium',authentication.authenticate,require('./controllers/updateMember').isPremium);
+
+server.get('/purchase/leaderboard',authentication.authenticate,require('./controllers/leaderBoardController').getLeaderBoard)
+
 users.hasMany(expenses);
 expenses.belongsTo(users);
 
