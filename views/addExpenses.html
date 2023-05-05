@@ -24,6 +24,10 @@
     <div class="expenses">
         <h1>Expenses</h1>
     </div>
+    <div class="leaderboard">
+        <h1>LeaderBoard</h1>
+        <ul class="leader-list"></ul>
+    </div>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
@@ -35,6 +39,8 @@
     const category=document.querySelector('#category');
     const rzpBtn=document.querySelector('#rzp-btn');
     const expenses=document.querySelector('.expenses');
+    const leaderboard=document.querySelector('.leaderboard');
+    const leaderList=document.querySelector('.leader-list');
     let ul=document.createElement('ul');
     expenses.appendChild(ul);
 
@@ -103,17 +109,28 @@
         deleteBtn.textContent="Delete Expense";
         return deleteBtn;
     }
+     
     async function leaderHandler(){
         let token=localStorage.getItem('token');
       let response=await axios("http://localhost:800/purchase/leaderboard",{headers:{"Authorization":token}});
-      console.log(response);
+      console.log(response.data);
+      
+      response.data.forEach(function(element){
+        if(response.data.includes(element)){
+            console.log(true);
+        }
+      })
+      
+     
     }
+    
     function createLeaderBoardBtn(parent){
         let btn=document.createElement('button');
               btn.textContent="Show LeaderBoard";
               btn.addEventListener('click',leaderHandler);
               parent.appendChild(btn);
     }
+
     async function getAddProduct(){
         const token=localStorage.getItem('token');
       let data=await getExpenses();
@@ -124,6 +141,7 @@
         let parent=rzpBtn.parentElement;
                parent.removeChild(rzpBtn);
               let span=document.createElement('span');
+              span.setAttribute('class','premium-user');
               span.innerText="You are a premium user now";
               parent.appendChild(span);
               createLeaderBoardBtn(parent);
