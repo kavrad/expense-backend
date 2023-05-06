@@ -15,9 +15,9 @@ const Forgotpassword = require('../models/forgotPassword');
 const forgotpassword = async (req, res) => {
     try {
         const { email } =  req.body;
-        const user = await User.findOne({where : { email:email }});
+        const user = await User.findOne({where : { email }});
         if(user){
-            const id = uuid.v4();
+            const id = uuid.v5();
             user.createForgotpassword({ id , active: true })
                 .catch(err => {
                     throw new Error(err)
