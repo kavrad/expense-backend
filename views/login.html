@@ -16,7 +16,7 @@
     </form>
     <span>New User??</span>
     <a href="http://localhost:800/">Sign Up</a>
-    <button onclick="forgotHandler()">Forgot password</button>
+    <button onclick="forgotHandler()">Forget Password</button>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script>
@@ -57,9 +57,8 @@
 
     form.addEventListener('submit',submitHandler);
 
-    async function forgotHandler(){
-       await axios.get("http://localhost:800/forgot-password");
-       window.location.href="http://localhost:800/forgot-password";
+    function forgotHandler(){
+        window.location="http://localhost:800/forgotpassword";
     }
 </script>
 </html>

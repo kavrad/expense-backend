@@ -21,17 +21,44 @@
         <button type="submit">Add Expense</button>
     </form>
     <button type="submit" id="rzp-btn">Buy Premium Membership</button>
-    <button onclick="download()" id="downloadexpense">Download File</button>
+    
     <div class="expenses">
         <h1>Expenses</h1>
+        <div class="items-controller">
+            <h5>Show</h5>
+            <select name="numberofrows" id="no-of-rows"> Number Of Rows:
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+            </select>
+            <h5>per page</h5>
+        </div>
+        <ul id="expense-list"></ul>
+        <div class="bottom-field">
+            <div class="col">
+                <div id="page-details"></div>
+            </div>
+            <ul class="pagination" id="pagination">
+                <!-- <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a href="#" class="page-link">Next</a></li> -->
+              
+            </ul>
+        </div>
+        
     </div>
     <div class="leaderboard">
         <h1>LeaderBoard</h1>
         <ul class="leader-list"></ul>
     </div>
+    
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script src="/js/report.js"></script>
 
 <script>
     const form=document.querySelector('#form');
@@ -42,8 +69,10 @@
     const expenses=document.querySelector('.expenses');
     const leaderboard=document.querySelector('.leaderboard');
     const leaderList=document.querySelector('.leader-list');
-    let ul=document.createElement('ul');
-    expenses.appendChild(ul);
+   const noOfRows=document.querySelector('#no-of-rows');
+
+    let ul=document.querySelector('#expense-list')
+    
 
     async function getExpenses(){
         let token=localStorage.getItem('token');
@@ -53,7 +82,7 @@
          headers: {
     'Authorization': token,
   }});
-  console.log(response.data.headers);
+  
       let data=response.data;
       console.log(data);
       return data;
@@ -69,13 +98,16 @@
         let response=await axios.post("http://localhost:800/add-expense",obj,{headers:{"Authorization":token}});
         console.log(response);
         let data=response.data[response.data.length-1];
-        return data;
+        return response;
     }
 
     async function postAddProduct(e){
         e.preventDefault();
         let data=await postExpenses();
-        let li=document.createElement('li');
+        const limit=localStorage.getItem('limit');
+        console.log(data);
+        //renderList();
+        /*let li=document.createElement('li');
         li.innerText=`${data.expenseAmount}-${data.desc}-${data.category}`;
         let deleteBtn=document.createElement('button');
         deleteBtn.setAttribute('id',`${data.Id}`);
@@ -94,7 +126,7 @@
             superParent.removeChild(parent);
             alert(`${response.data.message}`);
         }
-        deleteBtn.addEventListener('click',deleteHandler)
+        deleteBtn.addEventListener('click',deleteHandler)*/
         
     }
 
@@ -131,13 +163,19 @@
               btn.addEventListener('click',leaderHandler);
               parent.appendChild(btn);
     }
-
+    
     async function getAddProduct(){
-        const token=localStorage.getItem('token');
-      let data=await getExpenses();
+   
+    const token=localStorage.getItem('token');
 
+    
+    let data=await getExpenses();
+    console.log(data);
+   
+    
       const decoded=parseJwt(token);
       console.log(decoded);
+
       if(decoded.isPremium ===true){
         let parent=rzpBtn.parentElement;
                parent.removeChild(rzpBtn);
@@ -146,35 +184,205 @@
               span.innerText="You are a premium user now";
               parent.appendChild(span);
               createLeaderBoardBtn(parent);
+              createReportBtn(form);
+              
         }
        /*let ans=await axios.get("http://localhost:800/get-premium",{headers:{"Authorization":token}})
       decoded.isPremium=ans.data.isPremium;*/
       
        console.log(decoded);
-      data.forEach(element => {
-        let li=createList();
-        li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+       /*data.forEach(element => {
+         let li=createList();
+         li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+         li.className="list-item";
         let deleteBtn=createDeleBtn();
-        deleteBtn.id=element.Id;
-        li.appendChild(deleteBtn);
+         deleteBtn.id=element.Id;
+         li.appendChild(deleteBtn);
 
         async function deleteHandler(){
-            let token=localStorage.getItem('token');
+             let token=localStorage.getItem('token');
             let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
             console.log(response);
             let id=document.getElementById(`${response.data.expense.Id}`)
             console.log(id);
-            let parent=id.parentElement;
-            let superParent=parent.parentElement;
+           let parent=id.parentElement;
+           let superParent=parent.parentElement;
             superParent.removeChild(parent);
             
-        }
-        deleteBtn.addEventListener('click',deleteHandler)
+         }
+         deleteBtn.addEventListener('click',deleteHandler)
         
          });
          
     console.log(data);
+
+   
+
+    // const noOfRowsVal=noOfRows.value;
+    // console.log(noOfRowsVal);
+
+    //localStorage.setItem(decoded.userId,noOfRowsVal);
+    //const limit=10;
+    //const response=await axios(`http://localhost:800/expenses?page=${pageId}&pagelimit=${limit}`,{headers:{"Authorization":token}})
+    //console.log(response);
+    //console.log(response.data.expenses);
+    //  let limitData=await getExpenses();
+    //  console.log(limitData);
+   
+    /*const limit=localStorage.getItem('limit');
+    console.log(limit);
+    const response=await axios(`http://localhost:800/expenses?page=${1}&pagelimit=${limit}`,{headers:{"Authorization":token}})
+      console.log(response);
+      if(response.status === 200){
+        if(ul.children.length !==0){
+            let i=ul.children.length-1;
+            while(i>=0){
+                ul.removeChild(ul.children[i]);
+                i--;
+            }
+        
+        response.data.expenses.forEach(element => {
+      let li=createList();
+      li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+     let deleteBtn=createDeleBtn();
+     deleteBtn.id=element.Id;
+     li.appendChild(deleteBtn);
+     
+
+async function deleteHandler(){
+    let token=localStorage.getItem('token');
+    let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
+    console.log(response);
+    let id=document.getElementById(`${response.data.expense.Id}`)
+    console.log(id);
+    let parent=id.parentElement;
+    let superParent=parent.parentElement;
+    superParent.removeChild(parent);
+    
+}
+deleteBtn.addEventListener('click',deleteHandler)
+  
+ });
+
+      }else{
+        response.data.expenses.forEach(element => {
+      let li=createList();
+      li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+     let deleteBtn=createDeleBtn();
+     deleteBtn.id=element.Id;
+     li.appendChild(deleteBtn);
+     
+
+async function deleteHandler(){
+    let token=localStorage.getItem('token');
+    let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
+    console.log(response);
+    let id=document.getElementById(`${response.data.expense.Id}`)
+    console.log(id);
+    let parent=id.parentElement;
+    let superParent=parent.parentElement;
+    superParent.removeChild(parent);
+    
+}
+deleteBtn.addEventListener('click',deleteHandler)
+  
+
+ });
+
+      }
+      let pageBtn=document.createElement('button');
+      console.log(pageBtn);
+      pageBtn.textContent=response.data.currentpage;
+      
+      pageUl.appendChild(pageBtn);
+
+      if(pageUl.children.length === 0){
+        let pageBtn=document.createElement('button');
+      console.log(pageBtn);
+      pageBtn.textContent=response.data.currentpage;
+      console.log(pageBtn);
+      pageUl.appendChild(pageBtn);
+      pageBtn.addEventListener('click',async ()=>{
+        const ans=await axios(`http://localhost:800/expenses?page=${pageBtn.textContent}&pagelimit=${limit}`,{headers:{"Authorization":token}});
+        console.log(ans);
+        if(ul.children.length !==0){
+            let i=ul.children.length-1;
+            while(i>=0){
+                ul.removeChild(ul.children[i]);
+                i--;
+            }
+        
+        ans.data.expenses.forEach(element => {
+      let li=createList();
+      li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+     let deleteBtn=createDeleBtn();
+     deleteBtn.id=element.Id;
+     li.appendChild(deleteBtn);
+     
+
+async function deleteHandler(){
+    let token=localStorage.getItem('token');
+    let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
+    console.log(response);
+    let id=document.getElementById(`${response.data.expense.Id}`)
+    console.log(id);
+    let parent=id.parentElement;
+    let superParent=parent.parentElement;
+    superParent.removeChild(parent);
+    
+}
+deleteBtn.addEventListener('click',deleteHandler)
+  
+ });
+
+      }else{
+        ans.data.expenses.forEach(element => {
+      let li=createList();
+      li.innerText=`${element.expenseAmount}-${element.desc}-${element.category}`;
+     let deleteBtn=createDeleBtn();
+     deleteBtn.id=element.Id;
+     li.appendChild(deleteBtn);
+     
+
+async function deleteHandler(){
+    let token=localStorage.getItem('token');
+    let response=await axios.delete(`http://localhost:800/delete-expense/${deleteBtn.id}`,{headers:{"Authorization":token}});
+    console.log(response);
+    let id=document.getElementById(`${response.data.expense.Id}`)
+    console.log(id);
+    let parent=id.parentElement;
+    let superParent=parent.parentElement;
+    superParent.removeChild(parent);
+    
+}
+deleteBtn.addEventListener('click',deleteHandler)
+});
+      }
+      
+      
+})
+
     }
+
+}*/
+
+    }
+
+    async function showReports(){
+        const token=localStorage.getItem('token');
+       let response= await axios.get("http://localhost:800/report/show-report",{headers:{"Authorization":token}})
+       document.write(response.data);
+       
+    }
+
+    function createReportBtn(parent){
+        let btn=document.createElement('button');
+            btn.textContent="Report";
+            btn.id="report";
+            btn.addEventListener('click',showReports)
+            parent.appendChild(btn);
+    }
+
     async function rzpHandler(e){
         var token=localStorage.getItem('token');
         const response=await axios("http://localhost:800/purchase/premiumMembership",{headers:{"Authorization":token}})
@@ -204,6 +412,7 @@
               span.innerText="You are a premium user now";
               parent.appendChild(span);
               createLeaderBoardBtn(parent)
+              
             }
             }
             const rzp1=new Razorpay(options)
@@ -229,30 +438,144 @@
     }).join(''));
 
     return JSON.parse(jsonPayload);
-}  
-   
-function download(){
-    axios.get('http://localhost:800/user/download', { headers: {"Authorization" : token} })
-    .then((response) => {
-        if(response.status === 201){
-            //the bcakend is essentially sending a download link
-            //  which if we open in browser, the file would download
-            var a = document.createElement("a");
-            a.href = response.data.fileUrl;
-            a.download = 'myexpense.csv';
-            a.click();
-        } else {
-            throw new Error(response.data.message)
-        }
+} 
 
-    })
-    .catch((err) => {
-        showError(err)
-    });
+
+var pageUl=document.querySelector('.pagination');
+var lists=[];
+
+async function getData(){
+    const ans=await getExpenses();
+    lists=ans;
+    console.log(lists);
+   
 }
+getData();
+
+
+
+let records_per_page=2;
+let page_number=1; 
+let total_page;
+
+async function totalPages(){
+await getData();
+const total_records=lists.length;
+let total_page=Math.ceil(total_records/records_per_page)
+return total_page;
+}
+async function displayRecords(){
+    let start_index=(page_number-1)*records_per_page;
+    let end_index=start_index+(records_per_page-1);
+    await getData();
+    const total_pages=await totalPages();
+    if(end_index>=lists.length){
+        end_index=lists.length-1;
+    }
+    let statement='';
     
+    for(let i=start_index;i<=end_index;i++){
+        await getData();
+       console.log(lists);
+        let div=document.createElement('div');
+       let li=document.createElement('li');
+       li.innerText=`${lists[i].expenseAmount}-${lists[i].desc}-${lists[i].category}`;
+       let btn=document.createElement('button');
+       btn.textContent="Delete Expense";
+       btn.id=lists[i].Id;
+       btn.onclick=async function deleteHandler(){
+        console.log(btn);
+    /**/
+    
+}
+       li.appendChild(btn)
+       
+
+       div.appendChild(li);
+       statement+=`${div.innerHTML}`;
+    }
+    
+     document.getElementById('expense-list').innerHTML=statement;
+     
+
+    document.querySelectorAll('.dynamic-item').forEach(item => {
+        item.classList.remove('active');
+     });
+     //document.getElementById(`page${page_number}`).classList.add('active');
+     if(page_number ==1){
+      document.getElementById('prevBtn').parentElement.classList.add('disabled');
+     }else{
+        document.getElementById('prevBtn').parentElement.classList.remove('disabled');
+     }
+     if(page_number===total_pages){
+        document.getElementById('nextBtn').parentElement.classList.add('disabled');
+     }else{
+        document.getElementById('prevBtn').parentElement.classList.remove('disabled');
+     }
+     document.getElementById('page-details').innerHTML=`Showing ${start_index+1} to ${end_index+1} of ${lists.length}`
+}
+generatePage();  
+displayRecords();
+console.log(document.getElementById(`page${page_number}`))
+
+async function generatePage(){
+let prevBtn=` <li class="page-item"><a class="page-link" href="javascript:void(0)" onclick="prevBtn();" id="prevBtn">Previous</a></li>`;
+let nextBtn=`<li class="page-item"><a href="javascript:void(0)" class="page-link" onclick="nextBtn();" id="nextBtn">Next</a></li>`;
+let buttons='';
+let i=1;
+const total_page=await totalPages();
+console.log(total_page);
+let activeClass='';
+while(i<=total_page){
+    if(i==1){
+        activeClass='active';
+    }else{
+        activeClass='';
+    }
+    buttons+=`<li class="page-item dynamic-item ${activeClass}" id="page${i}"><a class="page-link" href="javascript:void(0)" onclick="page(${i});">${i}</a></li>`
+    i++;
+}
+
+document.getElementById('pagination').innerHTML=`${prevBtn} ${buttons} ${nextBtn}`
+}
+
+function prevBtn(){
+    page_number--;
+    displayRecords();
+}
+
+function nextBtn(){
+    
+    page_number++;
+    displayRecords();
+}
+function page(index){
+    page_number=parseInt(index);
+    displayRecords();
+}
+noOfRows.addEventListener('change',async function(e){
+    records_per_page=  parseInt(noOfRows.value);
+    let totalPage=await totalPages();
+    total_page=totalPage;
+    generatePage();
+    displayRecords();
+})
+document.getElementById('expense-list').addEventListener('click',async function(e){
+    console.log(e.target.id);
+    let token=localStorage.getItem('token');
+    let response=await axios.delete(`http://localhost:800/delete-expense/${e.target.id}`,{headers:{"Authorization":token}});
+    console.log(response);
+    let id=document.getElementById(`${response.data.expense.Id}`)
+    console.log(id);
+    let parent=id.parentElement;
+    let superParent=parent.parentElement;
+    superParent.removeChild(parent);
+})
     window.addEventListener('DOMContentLoaded',getAddProduct);
     form.addEventListener('submit',postAddProduct);
     rzpBtn.addEventListener('click',rzpHandler)
+
+    //const pageUl=document.querySelector('.pagination');
+    const itemsShow=document.querySelector('#itemsperpage');
 </script>
 </html>

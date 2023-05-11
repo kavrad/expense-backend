@@ -36,7 +36,10 @@ exports.updateMembershipFailed=async function(req,res,next){
 }
 
 exports.isPremium=async function(req,res,next){
- let user=await users.findOne({where:{isPremium:req.user.isPremium}});
- res.json(user);
+ 
+    let user=await users.findOne({where:{isPremium:req.user.isPremium}});
+    res.json(user);
+  
+ 
     
 }

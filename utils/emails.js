@@ -1,15 +1,28 @@
 const Sib=require('sib-api-v3-sdk');
+
 require('dotenv').config()
 const client=Sib.ApiClient.instance
-const apiKey=client.authentications['api-key'];
-apiKey.apiKey=process.env.API_KEY
+const apikey=client.authentications['api-key']
+apikey.apikey=process.env.API_KEY;
 
-const tranEmailApi=new Sib.TransactionalEmailsApi();
-const sender={
-    email:'kavrad#716@gmail.com'
-}
-const recievers=[
-    {
-        email:
+
+exports.sendMail=async (email,subject,content)=>{
+    const sendSmtpEmail=new Sib.SendSmtpEmail();
+    sendSmtpEmail.sender={
+        email:"kavyaht39@gmail.com"
+    };
+    sendSmtpEmail.to=[
+        {email:email}
+    ];
+    sendSmtpEmail.subject=subject;
+    sendSmtpEmail.textContent=content;
+    const apiInstance=new Sib.TransactionalEmailsApi();
+    try{
+      const response=await apiInstance.sendTransacEmail(sendSmtpEmail);
+      console.log(`Email sent to ${email}`)
+      return response;
+    }catch(err){
+      console.log(err);
+      console.error(`Error sending email to ${email}`)
     }
-]
+}
