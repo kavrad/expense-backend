@@ -1,3 +1,5 @@
+const fs=require('fs');
+const https=require('https');
 const express=require('express');
 const path=require('path');
 const bodyParser=require('body-parser');
@@ -6,55 +8,106 @@ const users=require('./models/users');
 const expenses=require('./models/expense');
 const orders=require('./models/order')
 const authentication=require('./utils/auth');
-const resetpasswordController = require('./controllers/forgotPassword');
+const forgotPasswords=require('./models/forgotPassword');
+const forgotPasswordRoutes=require('./routes/password');
+const helmet = require('helmet');
+const compression=require('compression');
+const morgan=require('morgan');
+
 const port=800;
 const server=express();
-const dotenv = require('dotenv');
-const Forgotpassword = require('./models/forgotPassword');
-// get config vars
-dotenv.config();
+
+const dotenv=require('dotenv').config();
+
+
+
 
 server.use(bodyParser.urlencoded({extended:false}));
 
 server.use(bodyParser.json())
 
 server.use(express.static(path.join(__dirname,'public')));
+const accessLogStream=fs.createWriteStream(path.join(__dirname,'access.log'),{flags:'a'})
+server.use(
+    helmet({
+      contentSecurityPolicy: false,
+      xDownloadOptions: false,
+    })
+  );
+server.use(compression())
+server.use(morgan('combined',{stream:accessLogStream}))
 
-server.get('/',function(req,res,next){
+//const privateKey=fs.readFileSync('server.key')
+//const certificate=fs.readFileSync('server.cert')
+
+const signUpRoutes=require('./routes/signUp');
+server.use(signUpRoutes);
+/*server.get('/',function(req,res,next){
     res.sendFile(path.join(__dirname,'views','signUp.html'));
-});
+});*/
 
-server.post('/add-user',require('./controllers/signUpController').signUp);
+//server.post('/add-user',require('./controllers/signUpController').signUp);
 
-server.get('/login',require('./controllers/loginController').login);
+const loginRoutes=require('./routes/login');
+server.use(loginRoutes);
 
-server.post('/user/login',require('./controllers/loginController').postLogin);
+//server.get('/login',require('./controllers/loginController').login);
 
-server.get('/expense',require('./controllers/addExpensesController').addExpense);
+//server.post('/user/login',require('./controllers/loginController').postLogin);
 
-server.post('/add-expense',authentication.authenticate,require('./controllers/addExpensesController').postAddExpense);
+const expenseRoutes=require('./routes/expense');
+server.use(expenseRoutes);
 
-server.get('/show-expense',authentication.authenticate,require('./controllers/addExpensesController').showExpense);
+//server.get('/expense',require('./controllers/addExpensesController').addExpense);
 
-server.delete('/delete-expense/:id',authentication.authenticate,require('./controllers/deleteExpenseController').deleteExpense);
+//server.post('/add-expense',authentication.authenticate,require('./controllers/addExpensesController').postAddExpense);
 
-server.get("/purchase/premiumMembership",authentication.authenticate,require('./controllers/purchasePremiumController').purchasePremium);
+//server.get('/show-expense',authentication.authenticate,require('./controllers/addExpensesController').showExpense);
 
-server.post('/updatemembership',authentication.authenticate,require('./controllers/updateMember').updateMembership);
+//server.delete('/delete-expense/:id',authentication.authenticate,require('./controllers/deleteExpenseController').deleteExpense);
 
-server.post('/updatemembershipFailed',authentication.authenticate,require('./controllers/updateMember').updateMembershipFailed)
+const purchaseRoutes=require('./routes/purchase');
+server.use('/purchase',purchaseRoutes)
 
-server.get('/get-premium',authentication.authenticate,require('./controllers/updateMember').isPremium);
+//server.get("/purchase/premiumMembership",authentication.authenticate,require('./controllers/purchasePremiumController').purchasePremium);
 
-server.get('/purchase/leaderboard',authentication.authenticate,require('./controllers/leaderBoardController').getLeaderBoard)
+const updateMemberRoutes=require('./routes/updateMember');
+server.use(updateMemberRoutes);
 
-server.get('/forgot-password',resetpasswordController.showForgotPassword);
+//server.post('/updatemembership',authentication.authenticate,require('./controllers/updateMember').updateMembership);
 
-server.get('/password/updatepassword/:resetpasswordid', resetpasswordController.updatepassword)
+//server.post('/updatemembershipFailed',authentication.authenticate,require('./controllers/updateMember').updateMembershipFailed)
 
-server.get('/password/resetpassword/:id', resetpasswordController.resetpassword)
+const premiumRoutes=require('./routes/premium');
+server.use(premiumRoutes);
 
-server.use('/password/forgotpassword', resetpasswordController.forgotpassword)
+//server.get('/get-premium',authentication.authenticate,require('./controllers/updateMember').isPremium);
+
+//server.get('/purchase/leaderboard',authentication.authenticate,require('./controllers/leaderBoardController').getLeaderBoard)
+
+const passwords=require('./routes/password');
+
+server.use(passwords);
+
+//server.get('/forgotpassword',require('./controllers/forgotPassword').showForgotPassword);
+
+const PasswordRoutes=require('./routes/forgotPassword');
+server.use('/password',PasswordRoutes);
+
+//server.post('/password/forgot-password',authentication.authenticate,require('./controllers/forgotPassword').forgotPassword);
+
+//server.get('/password/resetpassword/:id',require('./controllers/forgotPassword').showResetPassword);
+
+//server.get('/password/resetpassword/:id',require('./controllers/forgotPassword').resetPassword);
+
+//server.get('/password/updatepassword/:resetpasswordid',require('./controllers/forgotPassword').updatePassword);
+
+//server.get('/expenses',authentication.authenticate,require('./controllers/addExpensesController').getExpense);
+
+const report=require('./routes/report');
+server.use('/report',authentication.authenticate,report);
+
+server.use(require('./routes/upload'));
 
 users.hasMany(expenses);
 expenses.belongsTo(users);
@@ -62,12 +115,15 @@ expenses.belongsTo(users);
 users.hasMany(orders);
 orders.belongsTo(users);
 
-users.hasMany(Forgotpassword);
-Forgotpassword.belongsTo(users);
+users.hasMany(forgotPasswords);
+forgotPasswords.belongsTo(users);
+
+console.log(process.env.NODE_ENV);
 
 sequelize.sync().then((result)=>{
     console.log(result);
-    server.listen(port,function(err){
+    //https.createServer({key:privateKey,cert:certificate},server)
+    server.listen(process.env.PORT || port,function(err){
         try{
             if(err){
                 throw err;

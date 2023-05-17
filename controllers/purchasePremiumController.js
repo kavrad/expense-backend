@@ -36,8 +36,8 @@ exports.purchasePremium=function(req,res){
 
    
    let rzp=new razorpay({
-      key_id:"rzp_test_AXju51VVyyxDe7",
-      key_secret:"kyzUqH7cqFHzQRgxp12KcOXE"
+      key_id:`${process.env.KEY_ID}`,
+      key_secret:`${process.env.KEY_SECRET}`
    })
    rzp.orders.create({amount:250000,currency:"INR"},function(err,data){
       if(err){
@@ -49,7 +49,7 @@ exports.purchasePremium=function(req,res){
          status:"Pending",
          userId:req.user.id
       }).then(()=>{
-         res.status(201).json({data,key_id:"rzp_test_AXju51VVyyxDe7"});
+         res.status(201).json({data,key_id:`${process.env.KEY_ID}`});
       }).catch(err => console.log(err))
    })
 }catch(err){

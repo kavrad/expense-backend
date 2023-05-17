@@ -1,5 +1,5 @@
 const {Sequelize}=require('sequelize');
-const sequelize=new Sequelize('expenses','root','kavrad#716',{
+const sequelize=new Sequelize(`${process.env.SQL_DATABASE}`,`${process.env.SQL_USER}`,`${process.env.SQL_PASSWORD}`,{
     dialect:'mysql',
     host:'localhost'
 });

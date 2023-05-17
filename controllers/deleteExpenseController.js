@@ -9,7 +9,8 @@ exports.deleteExpense= async function(req,res,next){
     expenses.findOne({where:{Id:id,userId:req.user.id}}).then((expense)=>{
       const amount=expense.expenseAmount;
       const expenses=Number(user.totalExpenses);
-      const totalExpenses=expense>amount?expenses-amount:amount-expenses;
+      //const totalExpenses=expense>amount?Math.abs(expenses-amount):Math.abs(amount-expenses);
+      const totalExpenses=Math.abs(Number(expenses-amount));
       expense.destroy({transaction:t}).then(async ()=>{
         await users.update({totalExpenses:totalExpenses},{where:{id:id},transaction:t})
         await t.commit();

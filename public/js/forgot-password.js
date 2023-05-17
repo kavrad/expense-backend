@@ -9,7 +9,8 @@ form.addEventListener('submit',async function(e){
             email:email.value
         }
         const result=await axios.post("http://localhost:800/password/forgot-password",obj,{headers:{"Authorization":token}});
-        console.log(result.data.link);
+        console.log(result);
+        alert(`${result.data.message}`);
         async function showLink(){
           axios.get("http://localhost:800/password/resetpassword/${id}").then((data)=>{
             console.log(data);
