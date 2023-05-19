@@ -3,6 +3,7 @@ const https=require('https');
 const express=require('express');
 const path=require('path');
 const bodyParser=require('body-parser');
+
 const sequelize=require('./utils/database');
 const users=require('./models/users');
 const expenses=require('./models/expense');
@@ -10,35 +11,29 @@ const orders=require('./models/order')
 const authentication=require('./utils/auth');
 const forgotPasswords=require('./models/forgotPassword');
 const forgotPasswordRoutes=require('./routes/password');
-const helmet = require('helmet');
-const compression=require('compression');
 const morgan=require('morgan');
+const cors=require('cors');
 
 const port=800;
+
 const server=express();
 
 const dotenv=require('dotenv').config();
 
 
-
-
 server.use(bodyParser.urlencoded({extended:false}));
 
 server.use(bodyParser.json())
+server.use(cors());
 
-server.use(express.static(path.join(__dirname,'public')));
+//server.use(express.static(path.join(__dirname,'public')));
+
 const accessLogStream=fs.createWriteStream(path.join(__dirname,'access.log'),{flags:'a'})
-server.use(
-    helmet({
-      contentSecurityPolicy: false,
-      xDownloadOptions: false,
-    })
-  );
-server.use(compression())
+
+
 server.use(morgan('combined',{stream:accessLogStream}))
 
-//const privateKey=fs.readFileSync('server.key')
-//const certificate=fs.readFileSync('server.cert')
+
 
 const signUpRoutes=require('./routes/signUp');
 server.use(signUpRoutes);
@@ -109,6 +104,11 @@ server.use('/report',authentication.authenticate,report);
 
 server.use(require('./routes/upload'));
 
+server.use((req,res)=>{
+    console.log('url >>',req.url);
+res.sendFile(path.join(__dirname,`views/${req.url}`))
+})
+
 users.hasMany(expenses);
 expenses.belongsTo(users);
 
@@ -118,12 +118,12 @@ orders.belongsTo(users);
 users.hasMany(forgotPasswords);
 forgotPasswords.belongsTo(users);
 
-console.log(process.env.NODE_ENV);
+
 
 sequelize.sync().then((result)=>{
     console.log(result);
-    //https.createServer({key:privateKey,cert:certificate},server)
-    server.listen(process.env.PORT || port,function(err){
+    
+    server.listen(port,function(err){
         try{
             if(err){
                 throw err;
