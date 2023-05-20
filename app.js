@@ -38,7 +38,7 @@ server.use(
       xDownloadOptions: false,
     })
   );
-server.use(compression())
+
 server.use(morgan('combined',{stream:accessLogStream}))
 
 //const privateKey=fs.readFileSync('server.key')
