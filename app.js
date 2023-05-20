@@ -3,11 +3,6 @@ const https=require('https');
 const express=require('express');
 const path=require('path');
 const bodyParser=require('body-parser');
-
-
-
-
-
 const sequelize=require('./utils/database');
 const users=require('./models/users');
 const expenses=require('./models/expense');
@@ -16,10 +11,9 @@ const authentication=require('./utils/auth');
 const forgotPasswords=require('./models/forgotPassword');
 const forgotPasswordRoutes=require('./routes/password');
 const helmet = require('helmet');
-const compression=require('compression');
 const morgan=require('morgan');
 
-const port=800;
+const port=5000;
 
 const server=express();
 
@@ -41,72 +35,30 @@ server.use(
 
 server.use(morgan('combined',{stream:accessLogStream}))
 
-//const privateKey=fs.readFileSync('server.key')
-//const certificate=fs.readFileSync('server.cert')
-
 const signUpRoutes=require('./routes/signUp');
 server.use(signUpRoutes);
-/*server.get('/',function(req,res,next){
-    res.sendFile(path.join(__dirname,'views','signUp.html'));
-});*/
-
-//server.post('/add-user',require('./controllers/signUpController').signUp);
 
 const loginRoutes=require('./routes/login');
 server.use(loginRoutes);
 
-//server.get('/login',require('./controllers/loginController').login);
-
-//server.post('/user/login',require('./controllers/loginController').postLogin);
-
 const expenseRoutes=require('./routes/expense');
 server.use(expenseRoutes);
-
-//server.get('/expense',require('./controllers/addExpensesController').addExpense);
-
-//server.post('/add-expense',authentication.authenticate,require('./controllers/addExpensesController').postAddExpense);
-
-//server.get('/show-expense',authentication.authenticate,require('./controllers/addExpensesController').showExpense);
-
-//server.delete('/delete-expense/:id',authentication.authenticate,require('./controllers/deleteExpenseController').deleteExpense);
 
 const purchaseRoutes=require('./routes/purchase');
 server.use('/purchase',purchaseRoutes)
 
-//server.get("/purchase/premiumMembership",authentication.authenticate,require('./controllers/purchasePremiumController').purchasePremium);
-
 const updateMemberRoutes=require('./routes/updateMember');
 server.use(updateMemberRoutes);
 
-//server.post('/updatemembership',authentication.authenticate,require('./controllers/updateMember').updateMembership);
-
-//server.post('/updatemembershipFailed',authentication.authenticate,require('./controllers/updateMember').updateMembershipFailed)
-
 const premiumRoutes=require('./routes/premium');
 server.use(premiumRoutes);
-
-//server.get('/get-premium',authentication.authenticate,require('./controllers/updateMember').isPremium);
-
-//server.get('/purchase/leaderboard',authentication.authenticate,require('./controllers/leaderBoardController').getLeaderBoard)
 
 const passwords=require('./routes/password');
 
 server.use(passwords);
 
-//server.get('/forgotpassword',require('./controllers/forgotPassword').showForgotPassword);
-
 const PasswordRoutes=require('./routes/forgotPassword');
 server.use('/password',PasswordRoutes);
-
-//server.post('/password/forgot-password',authentication.authenticate,require('./controllers/forgotPassword').forgotPassword);
-
-//server.get('/password/resetpassword/:id',require('./controllers/forgotPassword').showResetPassword);
-
-//server.get('/password/resetpassword/:id',require('./controllers/forgotPassword').resetPassword);
-
-//server.get('/password/updatepassword/:resetpasswordid',require('./controllers/forgotPassword').updatePassword);
-
-//server.get('/expenses',authentication.authenticate,require('./controllers/addExpensesController').getExpense);
 
 const report=require('./routes/report');
 server.use('/report',authentication.authenticate,report);
