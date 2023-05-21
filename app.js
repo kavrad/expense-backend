@@ -14,7 +14,7 @@ const forgotPasswordRoutes=require('./routes/password');
 const morgan=require('morgan');
 const cors=require('cors');
 
-const port=800;
+const port=5000;
 
 const server=express();
 
